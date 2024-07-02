@@ -7,14 +7,27 @@ class Game {
     this.player = new Player(this);
     this.baseHeight = 720;
     this.ratio = this.height / this.baseHeight;
-    // this.gravity = 0.5;
-    // this.animationFrameId = null;
+    this.background = new Background(this);
+    this.gravity;
+    this.speed;
 
     this.resize(window.innerWidth, window.innerHeight);
 
     window.addEventListener('resize', (e) => {
       this.resize(window.innerWidth, window.innerHeight);
-    })
+    });
+
+    this.canvas.addEventListener('mousedown', (e) => {
+      this.player.flap();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') this.player.flap();
+    });
+
+    this.canvas.addEventListener('touchstart', (e) => {
+      this.player.flap();
+    });
   }
 
   resize(width, height) {
@@ -25,10 +38,15 @@ class Game {
     this.height = this.canvas.height;
     this.ratio = this.height / this.baseHeight;
 
+    this.gravity = 0.15 * this.ratio;
+    this.speed = 3 * this.ratio;
+    this.background.resize();
     this.player.resize();
   }
 
   render() {
+    this.background.update();
+    this.background.draw();
     this.player.update();
     this.player.draw();
   }

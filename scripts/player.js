@@ -5,34 +5,47 @@ class Player {
     this.height = 60;
     this.spriteWidth = 200;
     this.spriteHeight = 200;
-    this.width = 200;
-    this.height = 200;
-  }
-
-  update() {
-    this.x++;
-  //   this.speedY += this.game.gravity;
-  //   this.y += this.speedY;
-
-  //   if (this.y + this.height > this.game.height) {
-  //     this.y = this.game.height - this.height;
-  //     this.speedY = 0;
-  //   }
-
-  //   if (this.y < 0) {
-  //     this.y = 0;
-  //     this.speedY = 0;
-  //   }
+    this.width;
+    this.height;
+    this.speedY;
+    this.flapSpeed;
   }
 
   draw() {
-    this.game.ctx.fillStyle = 'red';
     this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
+  }
+
+  update() {
+    this.y += this.speedY;
+    if(!this.isTouchingBottom){
+      this.speedY += this.game.gravity;
+    }
+
+    if (this.isTouchingBottom) {
+      this.speedY = this.game.height - this.height;
+    }
   }
 
   resize() {
     this.width = this.spriteWidth * this.game.ratio;
     this.height = this.spriteHeight * this.game.ratio;
+    this.y = this.game.height * 0.5 - this.height * 0.5;
+    this.speedY = -8 * this.game.ratio;
+    this.flapSpeed = 5 * this.game.ratio;
+  }
+
+  isTouchingTop() {
+    return this.y <= 0;
+  }
+
+  isTouchingBottom() {
+    return this.y >= this.game.height - this.height
+  }
+
+  flap() {
+    if (!this.isTouchingTop()) {
+      this.speedY = -5;
+    }
   }
 }
 
