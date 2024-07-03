@@ -61,7 +61,7 @@ window.addEventListener('load', () => {
   const game = new Game(canvas, ctx);
 
   const animate = () => {
-    ctx.clearReact(0, 0, canvas.width, canvas.height)
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
     game.render();
     requestAnimationFrame(animate);
   }
@@ -149,3 +149,4 @@ window.addEventListener('load', () => {
 //   this.spawnObstacle();
 //   this.animationFrameId = requestAnimationFrame(() => this.animate());
 // };
+
