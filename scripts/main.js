@@ -8,8 +8,13 @@ class Game {
     this.baseHeight = 720;
     this.ratio = this.height / this.baseHeight;
     this.background = new Background(this);
+    this.obstacles = [];
+    this.numberOfObstacles = 10;
     this.gravity;
     this.speed;
+    this.score;
+    this.gameOver;
+    this.timer;
 
     this.resize(window.innerWidth, window.innerHeight);
 
@@ -34,6 +39,8 @@ class Game {
     this.canvas.width = width;
     this.canvas.height = height;
     this.ctx.fillStyle = 'red';
+    this.ctx.font = '15px Bungee';
+    this.ctx.textAlign = 'right';
     this.width = this.canvas.width;
     this.height = this.canvas.height;
     this.ratio = this.height / this.baseHeight;
@@ -42,13 +49,53 @@ class Game {
     this.speed = 3 * this.ratio;
     this.background.resize();
     this.player.resize();
+    this.createObstacles();
+    this.obstacles.forEach(obstacle => {
+      obstacle.resize();
+    });
+    this.score = 0;
+    this.gameOver = false;
+    this.timer = 0;
   }
 
-  render() {
+  render(deltaTime) {
+    if(!this.gameOver) this.timer += deltaTime;
+    this.timer =+ deltaTime;
     this.background.update();
     this.background.draw();
+    this.drawStatusText();
     this.player.update();
     this.player.draw();
+    this.obstacles.forEach(obstacle => {
+      obstacle.update();
+      obstacle.draw();
+    })
+  }
+
+  createObstacles() {
+    this.obstacles = [];
+    const firstX = this.baseHeight * this.ratio;
+    const obstacleSpacing = 600 * this.ratio;
+    for (let i = 0; i  < this.numberOfObstacles; i++) {
+      this.obstacles.push(new Obstacle(this, firstX + i * obstacleSpacing));
+    }
+  }
+
+  formatTimer() {
+    return (this.timer * 0.001).toFixed(1);
+  }
+
+  drawStatusText() {
+    this.ctx.save();
+    this.ctx.fillText('Score:' + this.score, this.width - 10, 30);
+    this.ctx.textAlign = 'left';
+    this.ctx.fillText('Timer:' + this.timer, 10, 30);
+    if (this.gameOver){
+      this.ctx.textAlign = 'center';
+      this.ctx.font = '30 BUngee';
+      this.ctx.fillText('GAME OVER:' + this.width * 0.5, this.height * 0.5);
+    }
+    this.ctx.restore();
   }
 }
 
@@ -59,94 +106,14 @@ window.addEventListener('load', () => {
   canvas.height = 720;
 
   const game = new Game(canvas, ctx);
+  let lastTime = 0;
 
-  const animate = () => {
+  const animate = (timeStamp) => {
+    const deltaTime = timeStamp - lastTime;
+    lastTime = timeStamp;
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     game.render();
-    requestAnimationFrame(animate);
+    if (!game.gameOver) requestAnimationFrame(animate);
   }
   requestAnimationFrame(animate);
 })
-
-// class Obstacle {
-//   constructor(game) {
-//     this.game = game;
-//     this.width = 50;
-//     this.height = Math.random() * (this.game.height / 2);
-//     this.x = this.game.width;
-//     this.y = Math.random() > 0.5 ? 0 : this.game.height - this.height;
-//     this.speedX = 5;
-//   }
-
-//   update() {
-//     this.x -= this.speedX;
-//   }
-
-//   draw() {
-//     this.game.ctx.fillStyle = 'blue';
-//     this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
-//   }
-// }
-
-// Game.prototype.spawnObstacle = function() {
-//   if (Math.random() < 0.02) {
-//       this.obstacles.push(new Obstacle(this));
-//   }
-// };
-
-// Game.prototype.animate = function() {
-//   this.ctx.clearRect(0, 0, this.width, this.height);
-//   this.player.update();
-//   this.player.draw();
-//   this.obstacles.forEach(obstacle => {
-//     obstacle.update();
-//     obstacle.draw();
-//   });
-//   this.spawnObstacle();
-//   this.animationFrameId = requestAnimationFrame(() => this.animate());
-// };
-
-// Game.prototype.resizeCanvas = function() {
-//   this.canvas.width = window.innerWidth;
-//   this.canvas.height = window.innerHeight;
-//   this.width = this.canvas.width;
-//   this.height = this.canvas.height;
-//   this.ctx.imageSmoothingEnabled = false;
-// };
-
-// Game.prototype.animate = function() {
-//   this.ctx.clearRect(0, 0, this.width, this.height);
-//   this.player.update();
-//   this.player.draw();
-
-//   this.obstacles.forEach((obstacle, index) => {
-//       obstacle.update();
-//       obstacle.draw();
-//       if (this.player.collidesWith(obstacle)) {
-//           cancelAnimationFrame(this.animationFrameId);
-//           alert('Game Over');
-//       }
-//   });
-//   this.spawnObstacle();
-//   this.animationFrameId = requestAnimationFrame(() => this.animate());
-// };
-
-// Game.prototype.drawBackground = function() {
-//   const bg = new Image();
-//   bg.src = 'assets/images/background_single.png';
-//   this.ctx.drawImage(bg, 0, 0, this.width, this.height);
-// };
-
-// Game.prototype.animate = function() {
-//   this.ctx.clearRect(0, 0, this.width, this.height);
-//   this.drawBackground();
-//   this.player.update();
-//   this.player.draw();
-//   this.obstacles.forEach(obstacle => {
-//       obstacle.update();
-//       obstacle.draw();
-//   });
-//   this.spawnObstacle();
-//   this.animationFrameId = requestAnimationFrame(() => this.animate());
-// };
-
