@@ -15,6 +15,8 @@ class Game {
     this.score;
     this.gameOver;
     this.timer;
+    this.message1;
+    this.message2;
 
     this.resize(window.innerWidth, window.innerHeight);
 
@@ -41,6 +43,8 @@ class Game {
     this.ctx.fillStyle = 'red';
     this.ctx.font = '15px Bungee';
     this.ctx.textAlign = 'right';
+    this.ctx.lineWidth = 3;
+    this.ctx.strokeStyle = 'white';
     this.width = this.canvas.width;
     this.height = this.canvas.height;
     this.ratio = this.height / this.baseHeight;
@@ -81,6 +85,14 @@ class Game {
     }
   }
 
+  checkCollision(a, b) {
+    const dx = a.collisionX - b.collisionX;
+    const dy = a.collisionY - b.collisionY;
+    const distance = Math.hypot(dx, dy);
+    const sumOfRadii = a.collisionRadius + b.collisionRadius;
+    return distance <= sumOfRadii;
+  }
+
   formatTimer() {
     return (this.timer * 0.001).toFixed(1);
   }
@@ -91,9 +103,18 @@ class Game {
     this.ctx.textAlign = 'left';
     this.ctx.fillText('Timer:' + this.timer, 10, 30);
     if (this.gameOver){
+      if (this.player.collided){
+        this.message1 = "Getting rusty?";
+        this.message2 = "Collision time " + this.formatTimer() + ' seconds!';
+      } else if (this.obstacles.length <= 0){
+        this.message1 = "Nailed it!";
+        this.message2 = "Can you do it faster this time " + this.formatTimer() + ' seconds!'
+      }
       this.ctx.textAlign = 'center';
       this.ctx.font = '30 BUngee';
-      this.ctx.fillText('GAME OVER:' + this.width * 0.5, this.height * 0.5);
+      this.ctx.fillText(this.message1 + this.width * 0.5, this.height * 0.5 - 40);
+      this.ctx.fillText(this.message2 + this.width * 0.5, this.height * 0.5 -20);
+      this.ctx.fillText('Press R to try again!' + this.width * 0.5, this.height * 0.5);
     }
     this.ctx.restore();
   }
